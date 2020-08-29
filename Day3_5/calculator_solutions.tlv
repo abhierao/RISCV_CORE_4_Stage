@@ -11,27 +11,15 @@
    // stimulus support, and Verilator config.
    m4_makerchip_module   // (Expanded in Nav-TLV pane.)
 \TLV
-   |calc
-      @0
-         //Sequential Calculator
-         $reset = *reset;
-         $val1[31:0] = >>1$out;
-         $val2[31:0] = $rand2[3:0];
-         $op[1:0]    = $rand3[1:0];
-         $sum[31:0]  = $val1 + $val2;
-         $sub[31:0]  = $val1 - $val2;
-         $mul[31:0]  = $val1 * $val2;
-         $div[31:0]  = $val1 / $val2;
-
-         //A mux to choose the desired operation 
-         $out[31:0] = $reset ? 32'b0 : 
-                      ($op==2'b00)
-                             ? $sum[31:0] :
-                      ($op==2'b01)
-                             ? $sub[31:0] :
-                      ($op==2'b10)
-                             ? $mul[31:0] :
-                      $div[31:0];          
+   //6-Stage Error Pipeline 
+   |comp
+      @1
+         $err1[7:0] = $bad_input | $illegal_op; 
+      @3
+         $err2[7:0] = $err1 | $over_flow;
+      @6
+         $err3[7:0] = $err2 | $div_by_zero;
+         
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
    *failed = 1'b0;
