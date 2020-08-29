@@ -13,7 +13,7 @@
 
    m4_makerchip_module   // (Expanded in Nav-TLV pane.)
 \TLV
-   //2 Cycle Calculator with Validity - A pipelined Calculator with every alternate valid cycles.
+   //2 Cycle Calculator with Validity and Memory - A 2 stage pipelined Calculator for basic arithmetic with memory.
    |calc
       @0
          $reset = *reset;
@@ -32,19 +32,27 @@
             $div[31:0]  = $val1 / $val2;
          @2
             //A mux to choose the desired operation 
-            $out[31:0] = ($op[1:0] == 2'b00)
+            $out[31:0] = ($op[2:0] == 3'b000)
                                 ? $sum[31:0] :
-                         ($op[1:0] == 2'b01)
+                         ($op[2:0] == 3'b001)
                                 ? $sub[31:0] :
-                         ($op[1:0] == 2'b10)
+                         ($op[2:0] == 3'b010)
                                 ? $mul[31:0] :
-                         ($op[1:0] == 2'b11)
+                         ($op[2:0] == 3'b011)
                                 ? $div[31:0] :
+                         ($op[2:0] == 3'b100)
+                                ? >>2$mem[31:0] :                               
                                 0;
+            //MEMORY to hold previous value 
+            $mem[31:0] = ($op[2:0] == 3'b100)
+                                ? >>2$mem[31:0] :
+                         ($op[2:0] == 3'b101)
+                                ? >>2$out[31:0] :
+                                >>2$mem[31:0];
 
    m4+cal_viz(@3)
    // Assert these to end simulation (before Makerchip cycle limit).
-   *passed = *cyc_cnt > 40;
+   *passed = *cyc_cnt > 200;
    *failed = 1'b0;
 \SV
    endmodule
