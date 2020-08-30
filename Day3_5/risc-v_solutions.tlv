@@ -45,10 +45,10 @@
          $reset = *reset;
          
          //PC IMPLEMENTATION 
-         $pc[31:0] = 
-            >>1$reset ? 
-            32'b0 :
-            >>1$pc + 32'd4;
+         $pc[31:0] = >>1$reset ? 32'b0 :
+                     >>1$taken_br ? >>1$br_tgt_pc :
+                     >>1$pc + 32'd4;
+
       @1   
          // Instruction Memory Logic
          $imem_rd_en = !$reset;
@@ -92,7 +92,7 @@
          ?$rs2_valid
             $rs2[4:0]    = $instr[24:20];
          ?$rs1_valid
-            $rs1[3:0]    = $instr[19:15];
+            $rs1[4:0]    = $instr[19:15];
          ?$rd_valid
             $rd[4:0]     = $instr[11:7];
          ?$funct3_valid
@@ -139,6 +139,24 @@
                          $src1[31:0] + $src2[31:0] :
                          32'bx;
          
+         //Register File Write 
+         $rf_wr_en = $rd_valid && $rd != 5'b0;
+         $rf_wr_index[4:0] = $rd;
+         $rf_wr_data[31:0] = $result;
+         
+         //BRANCHING Instructions 
+         $taken_br = $is_beq ? ($src1 == $src2) :
+                     $is_bne ?($src1 != $src2) :
+                     $is_bltu ? ($src1 <  $src2) :
+                     $is_bgeu ? ($src1 >= $src2) :
+                     $is_blt ? (($src1 < $src2) ^ ($src1[31] != $src2[31])) :
+                     $is_bgeu ? (($src1 >= $src2) ^ ($src1[31] != $src2[31])) :
+                            1'b0;
+
+         //Branch Target with PC inclusion
+         $br_tgt_pc[31:0] = $pc + $imm;
+         
+         *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
          
          //CLEARING WARNINGS
          `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 )
@@ -148,7 +166,7 @@
 
    
    // Assert these to end simulation (before Makerchip cycle limit).
-   *passed = *cyc_cnt > 40;
+   //*passed = *cyc_cnt > 40;
    *failed = 1'b0;
    
    // Macro instantiations for:
