@@ -1,7 +1,7 @@
 \m4_TLV_version 1d: tl-x.org
 \SV
    // /====================\
-   // | DAY4 LAB WORK - RISCV CPU SINGLE STAGE IMPLEMENTATION |
+   // | DAY5 LAB WORK - RISCV CPU WITH PIPELINE IMPLEMENTATION |
    // \====================/
    // This code can be found in: https://github.com/stevehoover/RISC-V_MYTH_Workshop
    
@@ -43,14 +43,20 @@
    |cpu
       @0
          $reset = *reset;
+         $start = >>1$reset && !$reset;
+         $valid = $reset ? 0 :
+                  $start ? 1 :
+                  >>3$valid;
          
          //PC IMPLEMENTATION 
          $pc[31:0] = >>1$reset ? 32'b0 :
-                     >>1$taken_br ? >>1$br_tgt_pc :
-                     >>1$pc + 32'd4;
-
+                     >>3$valid_taken_br ? >>3$br_tgt_pc :
+                     >>3$inc_pc;
       @1   
-         // Instruction Memory Logic
+         //PC Increment Stage 1
+         $inc_pc[31:0] = $pc + 32'd4;
+         //Instruction Memory Logic For memory instruction read enable,address and 
+         //Memory Instruction Read Data to Decode Logic
          $imem_rd_en = !$reset;
          $imem_rd_addr[M4_IMEM_INDEX_CNT-1:0] = $pc[M4_IMEM_INDEX_CNT+1:2];
          $instr[31:0] = $imem_rd_data[31:0];
@@ -120,6 +126,7 @@
          $is_addi = $dec_bits ==? 11'bx_000_0010011;
          $is_add  = $dec_bits ==? 11'b0_000_0110011;
          
+      @2   
          //Register File Reads
          //RS1 Reads
          $rf_rd_en1 = $rs1_valid;
@@ -127,23 +134,15 @@
          //RS2 Reads
          $rf_rd_en2 = $rs2_valid;
          $rf_rd_index2[4:0] = $rs2;
-         
+          
          //Output of Register File Read to ALU as Input 
          $src1[31:0] = $rf_rd_data1;
          $src2[31:0] = $rf_rd_data2;
          
-         //ALU Implmentation - ADD , ADDI
-         $result[31:0] = $is_addi ? 
-                         $src1[31:0] + $imm[31:0] :
-                         $is_add ?
-                         $src1[31:0] + $src2[31:0] :
-                         32'bx;
+         //Branch Target for Immediate Instruction PC increment
+         $br_tgt_pc[31:0] = $pc + $imm;
          
-         //Register File Write 
-         $rf_wr_en = $rd_valid && $rd != 5'b0;
-         $rf_wr_index[4:0] = $rd;
-         $rf_wr_data[31:0] = $result;
-         
+      @3   
          //BRANCHING Instructions 
          $taken_br = $is_beq ? ($src1 == $src2) :
                      $is_bne ?($src1 != $src2) :
@@ -152,9 +151,25 @@
                      $is_blt ? (($src1 < $src2) ^ ($src1[31] != $src2[31])) :
                      $is_bgeu ? (($src1 >= $src2) ^ ($src1[31] != $src2[31])) :
                             1'b0;
-
-         //Branch Target with PC inclusion
-         $br_tgt_pc[31:0] = $pc + $imm;
+         
+         //Valid Signal for branching which feeds into PC so that during pipeline unnecesarily PC doesn't
+         //Increment for INVALID CYCLES. 
+         $valid_taken_br = $valid && $taken_br;
+         
+         //ALU Implmentation - ADD , ADDI
+         $result[31:0] = $is_addi ? 
+                         $src1[31:0] + $imm[31:0] :
+                         $is_add ?
+                         $src1[31:0] + $src2[31:0] :
+                         32'bx;
+         
+         //Register File Write - Considering three cases
+         // Will be enabled only when Valid Bit which is helping us construct pipeline is high
+         // along with it destination register needs to be valid and destination register cannot
+         // be zero as it will be treated as X0 by RISCV ISA standards. 
+         $rf_wr_en = $valid && $rd_valid && $rd != 5'b0;
+         $rf_wr_index[4:0] = $rd;
+         $rf_wr_data[31:0] = $result;
          
          *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
          
@@ -163,7 +178,6 @@
       // Note: Because of the magic we are using for visualisation, if visualisation is enabled below,
       //       be sure to avoid having unassigned signals (which you might be using for random inputs)
       //       other than those specifically expected in the labs. You'll get strange errors for these.
-
    
    // Assert these to end simulation (before Makerchip cycle limit).
    //*passed = *cyc_cnt > 40;
@@ -176,7 +190,7 @@
    //  o CPU visualization
    |cpu
       m4+imem(@1)    // Args: (read stage)
-      m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
+      m4+rf(@2, @3)  // Args: (read stage, write stage) - if equal, no register bypass is required
       //m4+dmem(@4)    // Args: (read/write stage)
    
    m4+cpu_viz(@4)    // For visualisation, argument should be at least equal to the last stage of CPU logic
