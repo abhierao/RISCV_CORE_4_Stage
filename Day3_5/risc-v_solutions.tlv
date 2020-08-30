@@ -1,7 +1,7 @@
 \m4_TLV_version 1d: tl-x.org
 \SV
    // /====================\
-   // | DAY5 LAB WORK - RISCV CPU WITH PIPELINE IMPLEMENTATION |
+   // | DAY5 LAB WORK - RISCV 3 CYCLE CPU  
    // \====================/
    // This code can be found in: https://github.com/stevehoover/RISC-V_MYTH_Workshop
    
@@ -44,14 +44,11 @@
       @0
          $reset = *reset;
          $start = >>1$reset && !$reset;
-         $valid = $reset ? 0 :
-                  $start ? 1 :
-                  >>3$valid;
          
          //PC IMPLEMENTATION 
          $pc[31:0] = >>1$reset ? 32'b0 :
                      >>3$valid_taken_br ? >>3$br_tgt_pc :
-                     >>3$inc_pc;
+                     >>1$inc_pc;
       @1   
          //PC Increment Stage 1
          $inc_pc[31:0] = $pc + 32'd4;
@@ -106,6 +103,7 @@
          ?$funct7_valid
             $funct7[6:0] = $instr[31:25];
          
+      @2
          //Decoding Instructions 
          $dec_bits[10:0] = {$funct7[5] ,$funct3, $opcode};
          //Branch Instructions 
@@ -126,7 +124,37 @@
          $is_addi = $dec_bits ==? 11'bx_000_0010011;
          $is_add  = $dec_bits ==? 11'b0_000_0110011;
          
-      @2   
+         //Subtract Instructions
+         $is_sltiu  = $dec_bits ==? 11'bx_011_0010011;
+         $is_xori   = $dec_bits ==? 11'bx_100_0010011;
+         $is_ori    = $dec_bits ==? 11'bx_110_0010011;
+         $is_andi   = $dec_bits ==? 11'bx_111_0010011;
+         $is_slli   = $dec_bits ==? 11'b0_001_0010011;
+         $is_srli   = $dec_bits ==? 11'b0_101_0010011;
+         $is_sral   = $dec_bits ==? 11'b1_101_0010011;
+         $is_sub    = $dec_bits ==? 11'b1_000_0110011;
+         $is_sll    = $dec_bits ==? 11'b0_001_0110011;
+         $is_slt    = $dec_bits ==? 11'b0_010_0110011;
+         $is_sltu   = $dec_bits ==? 11'b0_011_0110011;
+         $is_xor    = $dec_bits ==? 11'b0_100_0110011;
+         $is_srl    = $dec_bits ==? 11'b0_101_0110011;
+         $is_sra    = $dec_bits ==? 11'b1_101_0110011;
+         $is_or     = $dec_bits ==? 11'b0_110_0110011;
+         $is_and    = $dec_bits ==? 11'b0_111_0110011;
+         
+         //Miscellaneous Instructions 
+         $is_lui    = $dec_bits ==? 11'bx_xxx_0110111;
+         $is_auipc  = $dec_bits ==? 11'bx_xxx_0010111;
+         $is_jal    = $dec_bits ==? 11'bx_xxx_1101111;
+         $is_jalb   = $dec_bits ==? 11'bx_000_1100111;
+         $is_sb     = $dec_bits ==? 11'bx_000_0100011;
+         $is_sh     = $dec_bits ==? 11'bx_001_0100011;
+         $is_sw     = $dec_bits ==? 11'bx_010_0100011;
+         $is_slti   = $dec_bits ==? 11'bx_010_0010011;
+         
+         //LOAD INSTRUCTION - Making it one instruction instead of 5 as in ISA 
+         $is_load   = $opcode == 7'b0000011;
+            
          //Register File Reads
          //RS1 Reads
          $rf_rd_en1 = $rs1_valid;
@@ -135,34 +163,89 @@
          $rf_rd_en2 = $rs2_valid;
          $rf_rd_index2[4:0] = $rs2;
           
-         //Output of Register File Read to ALU as Input 
-         $src1[31:0] = $rf_rd_data1;
-         $src2[31:0] = $rf_rd_data2;
+         //Output of Register File Read to ALU as Input -- Also handling the READ AFTER WRITE ISSUE due to 
+         // 3 cycle delay in instructions. REGISTER BYPASS LOGIC
+         $src1_value[31:0] = (>>1$rf_wr_index == $rf_rd_index1) && >>1$rf_wr_en
+                             ? >>1$result :
+                             $rf_rd_data1;
+         
+         $src2_value[31:0] = (>>1$rf_wr_index == $rf_rd_index2) && >>1$rf_wr_en
+                             ? >>1$result :
+                             $rf_rd_data2;
          
          //Branch Target for Immediate Instruction PC increment
          $br_tgt_pc[31:0] = $pc + $imm;
          
       @3   
          //BRANCHING Instructions 
-         $taken_br = $is_beq ? ($src1 == $src2) :
-                     $is_bne ?($src1 != $src2) :
-                     $is_bltu ? ($src1 <  $src2) :
-                     $is_bgeu ? ($src1 >= $src2) :
-                     $is_blt ? (($src1 < $src2) ^ ($src1[31] != $src2[31])) :
-                     $is_bgeu ? (($src1 >= $src2) ^ ($src1[31] != $src2[31])) :
+         $taken_br = $is_beq ? ($src1_value == $src2_value) :
+                     $is_bne ?($src1_value != $src2_value) :
+                     $is_bltu ? ($src1_value <  $src2_value) :
+                     $is_bgeu ? ($src1_value >= $src2_value) :
+                     $is_blt ? (($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31])) :
+                     $is_bgeu ? (($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31])) :
                             1'b0;
+         
+         //BRANCHING PROBLEM SOLUTION FOR READ AFTER WRITE CADENCE 
+         // In the case of read after write with a branch condition in next cycle
+         // The valid bit here will help increment the PC every cycle instead of every 3 cycles.
+         $valid = !(>>1$valid_taken_br || >>2$valid_taken_br);
          
          //Valid Signal for branching which feeds into PC so that during pipeline unnecesarily PC doesn't
          //Increment for INVALID CYCLES. 
          $valid_taken_br = $valid && $taken_br;
          
-         //ALU Implmentation - ADD , ADDI
-         $result[31:0] = $is_addi ? 
-                         $src1[31:0] + $imm[31:0] :
-                         $is_add ?
-                         $src1[31:0] + $src2[31:0] :
+         //ALU Implmentation - ADD , ADDI , SUB, OR , AND, XOR PLUS IMMEDIATE
+         $result[31:0] = $is_add ?
+                         $src1_value[31:0] + $src2_value[31:0] :
+                         $is_sub ?
+                         $src1_value[31:0] - $src2_value[31:0] :
+                         $is_and ?
+                         $src1_value[31:0] & $src2_value[31:0] :
+                         $is_or ?
+                         $src1_value[31:0] | $src2_value[31:0] :
+                         $is_xor ?
+                         $src1_value[31:0] ^ $src2_value[31:0] :
+                         $is_addi ? 
+                         $src1_value[31:0] + $imm[31:0] :
+                         $is_andi ?
+                         $src1_value[31:0] & $imm[31:0] :
+                         $is_ori ?
+                         $src1_value[31:0] | $imm[31:0] :
+                         $is_xori ?
+                         $src1_value[31:0] ^ $imm[31:0] :
+                         //ALU FOR MISCELLANEOUS OPERATIONS SHIFT OPERATIONS
+                         $is_slli ?
+                         $src1_value[31:0] << $imm[5:0] :
+                         $is_srli ?
+                         $src1_value[31:0] >> $imm[5:0] :
+                         $is_sll ?
+                         $src1_value[31:0] << $src2_value[4:0] :
+                         $is_srl ?
+                         $src1_value[31:0] >> $src2_value[4:0] :
+                         //ALU FOR MISCELLANEOUS OPERATIONS
+                         $is_sltu ? $sltu_rslt :
+                         $is_sltiu ? $sltiu_rslt :
+                         $is_lui ?
+                         {$imm[31:12], 12'b0} :
+                         $is_auipc ?
+                         $pc + $imm :
+                         $is_jal ?
+                         $pc + 32'd4 :
+                         $is_jalr ?
+                         $pc + 32'd4 :
+                         $is_srai ?
+                         { {32{$src1_value[31]}}, $src1_value} >> $imm[4:0] :
+                         $is_slt ?
+                         ($src1_value[31] == $src2_value[31]) ? $sltu_rslt : {31'b0, $src1_value[31]} :
+                         $is_slti ?
+                         ($src1_value[31] == $imm[31]) ? $sltu_rslt : {31'b0, $src1_value[31]} :
+                         $is_sra ?
+                         { {32{$src1_value[31]}}, $src1_value} >> $src2_value[4:0] :
                          32'bx;
          
+         $sltu_rslt[31:0]  = $src1_value[31:0] < $src2_value[31:0];
+         $sltiu_rslt[31:0] = $src1_value[31:0] < $imm;
          //Register File Write - Considering three cases
          // Will be enabled only when Valid Bit which is helping us construct pipeline is high
          // along with it destination register needs to be valid and destination register cannot
