@@ -70,6 +70,9 @@
          $is_j_instr = $instr[6:2] ==? 5'b11011;
          // U - Type Instructions
          $is_u_instr = $instr[6:2] ==? 5'b0x101;
+         // B - Type Instructions
+         $is_b_instr = $instr[6:2] ==? 5'b11000;
+         
          //Immediate Type
          $imm[31:0] = $is_i_instr ? { {21{$instr[31]}}, $instr[30:20]} :
                       $is_s_instr ? { {21{$instr[31]}}, $instr[30:25], $instr[11:7]} :
@@ -97,6 +100,27 @@
          ?$funct7_valid
             $funct7[6:0] = $instr[31:25];
          
+         //Decoding Instructions 
+         $dec_bits[10:0] = {$funct7[5] ,$funct3, $opcode};
+         //Branch Instructions 
+         //BEQ - Branch on equal 
+         $is_beq = $dec_bits ==? 11'bx_000_1100011;
+         //BNE - Branch on not equal
+         $is_bne = $dec_bits ==? 11'bx_001_1100011;
+         //BLT - Branch on less than
+         $is_blt = $dec_bits ==? 11'bx_100_1100011;
+         //BGE - Branch on greater than
+         $is_bge = $dec_bits ==? 11'bx_101_1100011;
+         //BLTU - Branch on less than equal
+         $is_bltu = $dec_bits ==? 11'bx_110_1100011;
+         //BGEU - Branch on greater than equal
+         $is_bgeu = $dec_bits ==? 11'bx_111_1100011;
+         
+         //ADD Instructions 
+         $is_addi = $dec_bits ==? 11'bx_000_0010011;
+         $is_add  = $dec_bits ==? 11'b0_000_0110011;
+         
+         `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 )
       // Note: Because of the magic we are using for visualisation, if visualisation is enabled below,
       //       be sure to avoid having unassigned signals (which you might be using for random inputs)
       //       other than those specifically expected in the labs. You'll get strange errors for these.
@@ -112,11 +136,11 @@
    //  o data memory
    //  o CPU visualization
    |cpu
-      //m4+imem(@1)    // Args: (read stage)
+      m4+imem(@1)    // Args: (read stage)
       //m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
       //m4+dmem(@4)    // Args: (read/write stage)
    
-   //m4+cpu_viz(@4)    // For visualisation, argument should be at least equal to the last stage of CPU logic
+   m4+cpu_viz(@4)    // For visualisation, argument should be at least equal to the last stage of CPU logic
                        // @4 would work for all labs
 \SV
    endmodule
