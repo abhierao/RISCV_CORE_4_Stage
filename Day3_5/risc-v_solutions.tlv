@@ -61,7 +61,7 @@
                        $instr[6:2] ==? 5'b001x0 || 
                        $instr[6:2] ==? 5'b11001;
          // R - Type Instructions
-         $is_r_instr = $instr[6:2] ==? 5'b101x0 || 
+         $is_r_instr = $instr[6:2] ==? 5'b011x0 || 
                        $instr[6:2] ==? 5'b01011 || 
                        $instr[6:2] ==? 5'b10100;
          // S - Type Instructions
@@ -120,6 +120,27 @@
          $is_addi = $dec_bits ==? 11'bx_000_0010011;
          $is_add  = $dec_bits ==? 11'b0_000_0110011;
          
+         //Register File Reads
+         //RS1 Reads
+         $rf_rd_en1 = $rs1_valid;
+         $rf_rd_index1[4:0] = $rs1;
+         //RS2 Reads
+         $rf_rd_en2 = $rs2_valid;
+         $rf_rd_index2[4:0] = $rs2;
+         
+         //Output of Register File Read to ALU as Input 
+         $src1[31:0] = $rf_rd_data1;
+         $src2[31:0] = $rf_rd_data2;
+         
+         //ALU Implmentation - ADD , ADDI
+         $result[31:0] = $is_addi ? 
+                         $src1[31:0] + $imm[31:0] :
+                         $is_add ?
+                         $src1[31:0] + $src2[31:0] :
+                         32'bx;
+         
+         
+         //CLEARING WARNINGS
          `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 )
       // Note: Because of the magic we are using for visualisation, if visualisation is enabled below,
       //       be sure to avoid having unassigned signals (which you might be using for random inputs)
@@ -137,7 +158,7 @@
    //  o CPU visualization
    |cpu
       m4+imem(@1)    // Args: (read stage)
-      //m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
+      m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
       //m4+dmem(@4)    // Args: (read/write stage)
    
    m4+cpu_viz(@4)    // For visualisation, argument should be at least equal to the last stage of CPU logic
