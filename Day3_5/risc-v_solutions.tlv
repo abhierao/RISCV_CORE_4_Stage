@@ -50,6 +50,8 @@
          $pc[31:0] = >>1$reset ? 32'b0 :
                      >>3$valid_taken_br ? >>3$br_tgt_pc :
                      >>3$valid_load ? >>3$inc_pc :
+                     >>3$valid_jump && >>3$is_jal ? >>3$br_tgt_pc : 
+                     >>3$valid_jump && >>3$is_jalr ? >>3$jalr_tgt_pc :
                      >>1$inc_pc;
       @1   
          //PC Increment Stage 1
@@ -178,6 +180,9 @@
          //Branch Target for Immediate Instruction PC increment
          $br_tgt_pc[31:0] = $pc + $imm;
          
+         //Jump Target for Immediate Instruction PC increment
+         $jalr_tgt_pc[31:0] = $src1_value + $imm;
+         
       @3   
          //BRANCHING Instructions 
          $taken_br = $is_beq ? ($src1_value == $src2_value) :
@@ -255,8 +260,13 @@
          $sltiu_rslt[31:0] = $src1_value[31:0] < $imm;
          
          //LOAD AND STORE LOGIC 
-         //
          $valid_load = $valid && $is_load;
+         
+         //JUMP INSTRUCTIONS LOGIC 
+         $is_jump = $is_jal || $is_jalr;
+         
+         //Validity to ensure only during valid cycles there is jump. 
+         $valid_jump = $valid && $is_jump;
          
          
          //Register File Write - Considering three cases
@@ -268,6 +278,7 @@
          $rf_wr_data[31:0] = >>2$valid_load ? >>2$ld_data : $result;
          
       @4
+         //DMEM - Memory Module
          $dmem_wr_en = $is_s_instr && $valid;
          $dmem_rd_en = $is_load;
          $dmem_addr  = $result[5:2];
@@ -278,7 +289,7 @@
          *passed = |cpu/xreg[17]>>5$value == (1+2+3+4+5+6+7+8+9);
          
          //CLEARING WARNINGS
-         `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 )
+         `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 $is_jalb $start $is_sral $start )
       // Note: Because of the magic we are using for visualisation, if visualisation is enabled below,
       //       be sure to avoid having unassigned signals (which you might be using for random inputs)
       //       other than those specifically expected in the labs. You'll get strange errors for these.
