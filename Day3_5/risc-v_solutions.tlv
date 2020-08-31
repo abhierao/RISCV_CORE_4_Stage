@@ -35,7 +35,8 @@
    m4_asm(ADDI, r13, r13, 1)            // Increment intermediate register by 1
    m4_asm(BLT, r13, r12, 1111111111000) // If a3 is less than a2, branch to label named <loop>
    m4_asm(ADD, r10, r14, r0)            // Store final result to register a0 so that it can be read by main program
-   
+   m4_asm(SW, r0, r10, 10000)           // Store final result in memory address 0x10000
+   m4_asm(LW, r17, r0, 10000)           // Load address 0x100000 in R17 register as final result
    // Optional:
    // m4_asm(JAL, r7, 00000000000000000000) // Done. Jump to itself (infinite loop). (Up to 20-bit signed immediate plus implicit 0 bit (unlike JALR) provides byte address; last immediate bit should also be 0)
    m4_define_hier(['M4_IMEM'], M4_NUM_INSTRS)
@@ -48,6 +49,7 @@
          //PC IMPLEMENTATION 
          $pc[31:0] = >>1$reset ? 32'b0 :
                      >>3$valid_taken_br ? >>3$br_tgt_pc :
+                     >>3$valid_load ? >>3$inc_pc :
                      >>1$inc_pc;
       @1   
          //PC Increment Stage 1
@@ -154,7 +156,7 @@
          
          //LOAD INSTRUCTION - Making it one instruction instead of 5 as in ISA 
          $is_load   = $opcode == 7'b0000011;
-            
+         
          //Register File Reads
          //RS1 Reads
          $rf_rd_en1 = $rs1_valid;
@@ -189,7 +191,7 @@
          //BRANCHING PROBLEM SOLUTION FOR READ AFTER WRITE CADENCE 
          // In the case of read after write with a branch condition in next cycle
          // The valid bit here will help increment the PC every cycle instead of every 3 cycles.
-         $valid = !(>>1$valid_taken_br || >>2$valid_taken_br);
+         $valid = !(>>1$valid_taken_br || >>2$valid_taken_br || >>1$valid_load || >>2$valid_load); 
          
          //Valid Signal for branching which feeds into PC so that during pipeline unnecesarily PC doesn't
          //Increment for INVALID CYCLES. 
@@ -214,6 +216,11 @@
                          $src1_value[31:0] | $imm[31:0] :
                          $is_xori ?
                          $src1_value[31:0] ^ $imm[31:0] :
+                         //LOAD AND STORE COMPUTATION
+                         $is_load ?
+                         $src1_value[31:0] + $imm[31:0] :
+                         $is_s_instr ?
+                         $src1_value[31:0] + $imm[31:0] :
                          //ALU FOR MISCELLANEOUS OPERATIONS SHIFT OPERATIONS
                          $is_slli ?
                          $src1_value[31:0] << $imm[5:0] :
@@ -246,15 +253,29 @@
          
          $sltu_rslt[31:0]  = $src1_value[31:0] < $src2_value[31:0];
          $sltiu_rslt[31:0] = $src1_value[31:0] < $imm;
+         
+         //LOAD AND STORE LOGIC 
+         //
+         $valid_load = $valid && $is_load;
+         
+         
          //Register File Write - Considering three cases
          // Will be enabled only when Valid Bit which is helping us construct pipeline is high
          // along with it destination register needs to be valid and destination register cannot
          // be zero as it will be treated as X0 by RISCV ISA standards. 
-         $rf_wr_en = $valid && $rd_valid && $rd != 5'b0;
-         $rf_wr_index[4:0] = $rd;
-         $rf_wr_data[31:0] = $result;
+         $rf_wr_en = ($valid && $rd_valid && $rd != 5'b0) || >>2$valid_load;
+         $rf_wr_index[4:0] = >>2$valid_load ? >>2$rd : $rd;
+         $rf_wr_data[31:0] = >>2$valid_load ? >>2$ld_data : $result;
          
-         *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
+      @4
+         $dmem_wr_en = $is_s_instr && $valid;
+         $dmem_rd_en = $is_load;
+         $dmem_addr  = $result[5:2];
+         $dmem_wr_data[31:0] = $src2_value;
+      @5
+         $ld_data[31:0] = $dmem_rd_data;
+         
+         *passed = |cpu/xreg[17]>>5$value == (1+2+3+4+5+6+7+8+9);
          
          //CLEARING WARNINGS
          `BOGUS_USE($is_addi $is_add $is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $imm $imem_rd_en $imem_rd_addr $rd $rs1 $rs2 )
@@ -274,7 +295,7 @@
    |cpu
       m4+imem(@1)    // Args: (read stage)
       m4+rf(@2, @3)  // Args: (read stage, write stage) - if equal, no register bypass is required
-      //m4+dmem(@4)    // Args: (read/write stage)
+      m4+dmem(@4)    // Args: (read/write stage)
    
    m4+cpu_viz(@4)    // For visualisation, argument should be at least equal to the last stage of CPU logic
                        // @4 would work for all labs
