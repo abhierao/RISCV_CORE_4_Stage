@@ -10,9 +10,11 @@ RISC-V is a free and open ISA enabling a new era of processor innovation through
 # Workshop Outline 
 The workshop was designed to be a 5 day coursework enabling participants to understand the Software-Hardware integration in architecting a Processor core.
 
+This workshop delivers on the promise of 5 days to a microprocessor using the approach of minimal theory and maximum implmentation. Concepts and Theory is kept to as low as 20% and writing code finding out the answers to move the next level is at 80% time spent. 
+
 The first two days was focussed on how an application written in higher level language (C, C++, JAVA, Python) communicates with the processor, details such as how a compiler / assembler works, interfaces between the Application layer --> OS and RTL, An introduction to RISC V ISA. 
 
-Day3-5 was all about Computer Architecture, RISCV ISA and Impelmenting a 3 stage pipelined RISCV Core on [Makerchip IDE](https://www.makerchip.com/) using [TL-Verilog](https://tl-x.org/)
+Day3-5 was all about Computer Architecture, RISCV ISA and Implementing a 3 stage pipelined RISCV Core on [Makerchip IDE](https://www.makerchip.com/) using [TL-Verilog](https://tl-x.org/)
 
 #### Key Takeaways - 
   - Understanding Compiler/Assembler and its importance
@@ -23,7 +25,8 @@ Day3-5 was all about Computer Architecture, RISCV ISA and Impelmenting a 3 stage
   - Logic Design and RTL Design.
   - Makerchip IDE(An EDA tool used to design the RISC V Core). 
 
-# Day1 
+# Day1 - Introduction to ISA and Compiler
+
 
 # Day2 
 
