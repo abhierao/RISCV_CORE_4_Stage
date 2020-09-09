@@ -25,8 +25,9 @@ Day3-5 was all about Computer Architecture, RISCV ISA and Implementing a 3 stage
   - Logic Design and RTL Design.
   - Makerchip IDE(An EDA tool used to design the RISC V Core). 
 
-# Day 1 & 2- Introduction to ISA and Compiler
+# Day 1 & 2- Introduction to ISA, Compiler, RISCV TOOL CHAIN and more...
 
+## Instruction Set Architecture
 An Instruction Set Architecture (ISA) defines, describes, and specifies how a particular computer processor core works. The ISA describes the registers and 
 describes each machine-level instruction. The ISA tells exactly what each instruction does and how it is encoded into bits. The ISA forms the interface between 
 hardware and software. Hardware engineers design digital circuits to implement a given ISA specification. Software engineers write code (operating systems, 
@@ -49,16 +50,74 @@ For example - <ins>__RV32IMFD__</ins>
   
 RV32I is the base integer instruction set which is included in all the designs, the rest are termed as extension sets which can be added as demanded by the design of microprocessor. 
 
-#### COMPILER and TOOL CHAIN 
-A <ins>__compiler__</ins> is a special program that processes statements written in a particular programming language (C, C++, JAVA etc) and turns them into 
-machine language (ASM) or "code" that a computer's processor uses.
+## RISCV TOOL CHAIN 
+__COMPILER__
+  - A <ins>__compiler__</ins> is a special program that processes statements written in a particular programming language (C, C++, JAVA etc) and turns them into 
+    machine language (ASM) or "code" that a computer's processor uses. We use a GCC Compiler in the below example. 
+  - __GCC COMPILER__ - The GNU Compiler Collection (GCC) is a compiler system produced by the GNU Project supporting various programming languages. 
 
-- __GCC COMPILER__ - The GNU Compiler Collection (GCC) is a compiler system produced by the GNU Project supporting various programming languages. 
-Lets use this to see the output of a compiler converting C code to x86 or RISCV ASM code below snippet shows a program for computing sum of 1 to 9 numbers.
+**1. To compile with RISC-V GCC compiler:**
+```
+riscv64-unknown-elf-gcc <compiler option -O1 ; Ofast> <ABI specifier -lp64; -lp32; -ilp32> <architecture specifier -RV64 ; RV32> -o <object filename> <C filename> 
+```
+**2. To compile using existing x86 on your machine just use GCC:**
+```
+gcc -o <object filename> <C-filename> 
+```
+**3. To view the disassembly aka assembly code - RISC V :**
+```
+riscv64-unknown-elf-objdump -d <object filename> | less 
+```
+**4. To view the disassembly aka assembly code - RISC V :**
+```
+objdump -d -M intel -s <object filename compiled using gcc> 
+```
 
 
+__SIMULATOR__
+  - __SPIKE SIMULATOR__ - Spike is the golden reference functional RISC-V ISA C++ sofware simulator. It provides full system emulation, It serves as a starting 
+    point for running software on a RISC-V target. Spike can also be used to debug the ASM code below image highlights step by step execution using SPIKE 
+    DEBUGGER.
 
-    
+**5. Step 1/2 generates an object file aka EXE file which most of us are familiar with, below code helps run the object file to provide us the expected output:**
+```
+spike pk <Object Filename>
+```
+**6. As mentioned earlier SPIKE can also be used to debug Assembly code step by step below commands helps to do that:**
+```
+spike -d pk <Object Filename>
+```
+
+__TOOL CHAIN FOR RISC V can be found__ [here](http://hdlexpress.com/RisKy1/How2/toolchain/toolchain.html) __and SPIKE__ [here](https://chipyard.readthedocs.io/en/latest/Software/Spike.html). 
+
+
+Lets use the above tool chain to see the output of a compiler converting C code to RISCV ASM and x86 ASM code, below snippet shows the output of a program written 
+in C to compute sum of 1 to 9 numbers and SPIKE outputs.
+
+
+__SUM OF 1 to 9 OUTPUT using SPIKE__
+![sum_of_n_numbers_RV64_output](https://user-images.githubusercontent.com/14968674/92629425-ed424100-f2eb-11ea-8a04-53dc0b77e37e.png)
+
+__A DIFFERENTIATION OF x86 ASM vs RISCV ASM__ - Clearly RISCV has lesser instructions for the same C code. 
+![x86_vs_RISCV_Disassembly](https://user-images.githubusercontent.com/14968674/92628266-2974a200-f2ea-11ea-8351-3c9b10e6bc0a.png)
+
+__SPIKE DEBUG ENVIRONMENT__ - Showcasing step by step debug capability. 
+![Spike_debug](https://user-images.githubusercontent.com/14968674/92629442-f16e5e80-f2eb-11ea-9f94-25146160b835.jpg)
+
+
+## APPLICATION BINARY INTERFACE 
+System programming(*3) involves designing and writing computer programs that allow the computer hardware to interface with the programmer and the user, leading to  the effective execution of application software on the computer system.Typical system programs include the operating system and firmware, compilers assemblers etc.
+
+In order to achieve systems programming there needs to be an interface which communicates between software and hardware which is where the APPLICATION BINARY 
+INTERFACE comes into play. 
+
+Application Binary Interface is an interface that allows application programmers to access hardware resources. RISC-V specification has 32 registers whose width 
+is defined by XLEN which can be 32/64 for RV32/RV64 respectively.The data can be loaded from memory to registers or directly sent, Application programmer can 
+access each of these 32 registers through its ABI name seen below
+
+__Check References(2) for detailed article on ABI__
+![ABI NAME](https://www.vlsisystemdesign.com/wp-content/uploads/2017/12/32-registers.png)
+
 
 # Day3 
 
@@ -69,3 +128,9 @@ Lets use this to see the output of a compiler converting C code to x86 or RISCV 
 # Acknowledgements 
 
 # References 
+
+**1. To understand more about Compiler options refer to [RISC V OPTIONS](https://www.sifive.com/blog/all-aboard-part-1-compiler-args) and [GCC OPTIONS](https://gcc.gnu.org/onlinedocs/gcc/Option-Index.html#Option-Index_op_letter-O)
+
+**2. A simplified understanding of ABI by Kunal [here](https://www.vlsisystemdesign.com/abi-get-this-one-right-risc-v-is-all-yours/)
+
+**3. [Systems Programming](https://en.wikipedia.org/wiki/Systems_programming)
