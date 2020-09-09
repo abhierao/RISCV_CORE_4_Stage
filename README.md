@@ -138,12 +138,38 @@ Features of TL-Verilog making it unique -
 Makerchip is a free online environment by Redwood EDA for developing high-quality integrated circuits. The online platform can be used to code, compile, simulate and debug Verilog designs all in just one tool. Access and learn from [here](http://makerchip.com/)
 
 #### DIGITAL DESIGN 
+**1. GATES (AND , OR , NOT etc) 
+
+**2. Multiply Operator Implementation and what is the magic behind TL-Verilog
+
+**3. Pythagorean Theorem Implementation - Single Stage
+
+**4. Ease of PIPELINING in TL-V Pythagorean Theorem Implementation - 3 Stage Pipelined
+
+**5. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity 
 
 
 # Day4 & 5 - RISC V CORE IMPLMENTATION
+**1. Program Counter Implementation 
+
+**2. Instruction Fetch
+
+**3. Instruction Decode
+
+**4. ALU 
+
+**5. Single Stage RISC V Core 
+
+**6. Integrating Memory
+
+**7. RISC V 3 Stage Pipelined Core
 
 
 # Acknowledgements 
+  - [Kunal Ghosh](https://www.linkedin.com/in/kunal-ghosh-vlsisystemdesign-com-28084836/) (Founder VSD)
+  - [Steve Hoover](https://www.linkedin.com/in/steve-hoover-a44b607/) (Founder Redwood EDA)
+  - [Shivam Potdar](https://www.linkedin.com/in/shivampotdar99/) 
+  - [Vineeth Jain](https://www.linkedin.com/in/vineet-jain-3b4a24150/)
 
 # References 
 
