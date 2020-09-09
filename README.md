@@ -96,10 +96,13 @@ in C to compute sum of 1 to 9 numbers and SPIKE outputs.
 
 
 __SUM OF 1 to 9 OUTPUT using SPIKE__
+
 ![sum_of_n_numbers_RV64_output](https://user-images.githubusercontent.com/14968674/92629425-ed424100-f2eb-11ea-8a04-53dc0b77e37e.png)
+
 
 __A DIFFERENTIATION OF x86 ASM vs RISCV ASM__ - Clearly RISCV has lesser instructions for the same C code. 
 ![x86_vs_RISCV_Disassembly](https://user-images.githubusercontent.com/14968674/92628266-2974a200-f2ea-11ea-8351-3c9b10e6bc0a.png)
+
 
 __SPIKE DEBUG ENVIRONMENT__ - Showcasing step by step debug capability. 
 ![Spike_debug](https://user-images.githubusercontent.com/14968674/92629442-f16e5e80-f2eb-11ea-9f94-25146160b835.jpg)
