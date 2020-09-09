@@ -5,7 +5,7 @@
 # Overview 
 RISC-V is a free and open ISA enabling a new era of processor innovation through open standard collaboration. Born in academia and research, RISC-V ISA delivers a new level of free, extensible software and hardware freedom on architecture, paving the way for the next 50 years of computing design and innovation.
 
-"Microprocessor for You in Thirty Hours" is a Workshop offered by [VLSI System Design](https://www.vlsisystemdesign.com) and [Redwoord EDA](https://www.redwoodeda.com/) to help students, computer architecture enthusiasts and hobbyists to get a jumpstart into the world of RISCV.
+"Microprocessor for You in Thirty Hours" is a Workshop offered by [VLSI System Design](https://www.vlsisystemdesign.com) and [Redwood EDA](https://www.redwoodeda.com/) to help students, computer architecture enthusiasts and hobbyists to get a jumpstart into the world of RISCV.
 
 # Workshop Outline 
 The workshop was designed to be a 5 day coursework enabling participants to understand the Software-Hardware integration in architecting a Processor core.
@@ -123,11 +123,25 @@ __Check References(2) for detailed article on ABI__
 ![ABI NAME](https://www.vlsisystemdesign.com/wp-content/uploads/2017/12/32-registers.png)
 
 
-# Day3 
+# Day3 - MAKERCHIP, TL VERILOG & DIGITAL DESIGN
 
-# Day4 
+#### TL VERILOG 
+Transaction Level Verilog or TL-Verilog is an extension to existing Verilog HDL and a huge step forward in coding HDL languages. TL-Verilog introduces simpler syntaxes and adds powerful constructs which makes Logic Design fun and easy. (Also can say its a Higher Abstraction to Sys V)
 
-# Day5
+Features of TL-Verilog making it unique - 
+  - TL-Verilog supports "timing abstraction" or pipelining as a fundamental language construct. Pipelines provide context for sequential logic. 
+  - TL-V eliminates the need to code sequential elements, such as flip-flops, explicitly. 
+  - Logic pipelining can be easily and safely modified to meet cycle-time targets for a particular implementation of a design, even for logic you might not think of as pipelined. (Easiest way to implement pipeline is acheived in TL-V) 
+  - Generally, high-speed designs are less than half the size in TL-Verilog versus SystemVerilog without any loss in detail! More about it [here](https://www.redwoodeda.com/tl-verilog)
+
+#### MAKERCHIP 
+Makerchip is a free online environment by Redwood EDA for developing high-quality integrated circuits. The online platform can be used to code, compile, simulate and debug Verilog designs all in just one tool. Access and learn from [here](http://makerchip.com/)
+
+#### DIGITAL DESIGN 
+
+
+# Day4 & 5 - RISC V CORE IMPLMENTATION
+
 
 # Acknowledgements 
 
@@ -138,3 +152,10 @@ __Check References(2) for detailed article on ABI__
 **2. A simplified understanding of ABI by Kunal [here](https://www.vlsisystemdesign.com/abi-get-this-one-right-risc-v-is-all-yours/)
 
 **3. [Systems Programming](https://en.wikipedia.org/wiki/Systems_programming)
+
+**4. RISC V Calling Convention for systems programmers [here](https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf)
+
+**5. [Redwood EDA](https://www.redwoodeda.com/)
+
+**6. [TL-X org](https://tl-hdl.wixsite.com/tl-x)
+
