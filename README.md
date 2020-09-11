@@ -164,7 +164,7 @@ __3 Stage Pipeline__ *Just an @ and voila the design is split into different sta
 
 __4. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity__
 
-*Validity in code is an important feature as it acts as Guardian of a piece of module to be executed when a particular condition gets hit, this makes the code easier to debug, cleaner implmentation of the code and helps in Automatic Clock Gating. @Valid construct in TL-V helps achieve. The code for this implementation is present [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/calculator_solutions.tlv)*
+*Validity in code is an important feature as it acts as Guardian of a piece of module to be executed when a particular condition gets hit, this makes the code easier to debug, cleaner implmentation of the code and helps in Automatic Clock Gating. @Valid construct in TL-V helps achieve this. The code for this implementation is present [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/calculator_solutions.tlv)*
 
 ![2_Cycle_Calculator_with_validity](https://user-images.githubusercontent.com/14968674/92878862-21238080-f42a-11ea-9836-590ec6359ff8.png)
 
@@ -198,7 +198,7 @@ Waveform showcasing BLT signal (Branch if less than) Toggle on Branch Instructio
 
 
 __4. ALU and Register Write of output__
-*An arithmetic-logic unit (ALU) is the part of the CPU that carries out arithmetic and logic operations. Below image shows an ADDI (ADD Immediate) instruction computation.
+*An arithmetic-logic unit (ALU) is the part of the CPU that carries out arithmetic and logic operations. Below image shows an ADDI (ADD Immediate) instruction computation.*
 
 *A unique feature of makerchip yet to be released to public is VIZ (Visualization), it helps analyze the implementation visually thereby developers can understand how instructions are executed and which registers is at play during transactions and the final register output.*
 
@@ -212,7 +212,7 @@ __5. Single Stage RISC V Core__
 
 
 __6. RISC V 3 Stage Pipelined Core__
-*The above single stage Core was enhanced to be staged across 3 stages in a pipeline, Final output where the core is computing Sum of 9 numbers. The code for the same is available [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/risc-v_solutions.tlv).*
+*The above single stage Core was enhanced to be staged across 3 stages in a pipeline, Final output where the core is computing Sum of 9 numbers and the code for the same is available [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/risc-v_solutions.tlv).*
 
 ![RISCV_CPU_CORE](https://user-images.githubusercontent.com/14968674/92879163-6c3d9380-f42a-11ea-9f67-ef71d37147f5.png)
 
