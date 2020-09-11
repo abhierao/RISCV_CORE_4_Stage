@@ -139,83 +139,90 @@ Makerchip is a free online environment by Redwood EDA for developing high-qualit
 
 #### DIGITAL DESIGN 
 Below are a set of images from Makerchip showcasing the TL-V code and Simulation Output. Most of the basic circuits examples can be found in Makerchip Tutorials an exhaustive list to get anyone enough information to learn the platform and TL-Verilog. 
+```diff
+@@    1. GATES and MUX (AND , OR , NOT etc)    @@
+```
+![Gates_mux](https://user-images.githubusercontent.com/14968674/92878871-22ed4400-f42a-11ea-832f-82394644f58c.png)
 
-**1. GATES and MUX (AND , OR , NOT etc) 
-
-/home/abhierao/Documents/RISCV/DAY3_Snips/Gates_mux.png
-
-**2. Multiply Operator Implementation and what is the magic behind TL-Verilog
+```diff
+@@    2. Multiply Operator Implementation and what is the magic behind TL-Verilog   @@
 
 What is so special about TL-V is its integration with SandPiper. SandPiper is a code generator which converts code written in TL_Verilog code to a well-structured SystemVerilog code. More about Sandpiper [here](https://www.redwoodeda.com/products).
+```
+![code_comparison_multiply](https://user-images.githubusercontent.com/14968674/92878868-2254ad80-f42a-11ea-84b6-eb552abc65b8.png)
 
-/home/abhierao/Documents/RISCV/DAY3_Snips/code_comparison_multiply.png
+```diff
+@@    3. Ease of PIPELINING in TL-V Pythagorean Theorem Implementation - Single Stage v/s 3 Stage Pipeline    @@
 
-**3. Ease of PIPELINING in TL-V Pythagorean Theorem Implementation - Single Stage v/s 3 Stage Pipeline
++   Single Stage   +
+```
+![Pythagorean_single_stage](https://user-images.githubusercontent.com/14968674/92878876-241e7100-f42a-11ea-8f4e-3e46b2dd02c9.png)
 
-Single Stage
-/home/abhierao/Documents/RISCV/DAY3_Snips/Pythagorean_single_stage.png
-
-3 Stage Pipeline - Just an @ and voila the design is split into different stages, An exercise would be to check the amount of code saved by TL Verilog it would be astonishing improvement. Simpler the code lesser the bugs is the mantra. 
-
-/home/abhierao/Documents/RISCV/DAY3_Snips/Pythagorean_3_stage.png
+```diff
++   3 Stage Pipeline Just an @ and voila the design is split into different stages, An exercise would be to check the amount of code saved by TL Verilog it would be astonishing improvement. Simpler the code lesser the bugs is the mantra.     +
+```
+![Pythagorean_3_stage](https://user-images.githubusercontent.com/14968674/92878874-2385da80-f42a-11ea-9541-d27a8d9312b2.png)
 
 
-**4. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity 
-
+```diff
+@@    4. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity    @@
+```
 Validity in code is an important feature as it acts as Guardian of a piece of module to be executed when a particular condition gets hit, this makes the code easier to debug, cleaner implmentation of the code and helps in Automatic Clock Gating. @Valid construct in TL-V helps achieve. The code for this implementation is present [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/calculator_solutions.tlv)
 
-file:///home/abhierao/Documents/RISCV/DAY3_Snips/2_Cycle_Calculator_with_validity.png
+![2_Cycle_Calculator_with_validity](https://user-images.githubusercontent.com/14968674/92878862-21238080-f42a-11ea-9836-590ec6359ff8.png)
 
-file:///home/abhierao/Documents/RISCV/DAY3_Snips/2_cycle_calculator_validity_diagram.png
+![2_cycle_calculator_validity_diagram](https://user-images.githubusercontent.com/14968674/92872851-14039300-f424-11ea-86f8-2d77312c1f86.png)
 
 
 
 # Day4 & 5 - RISC V CORE IMPLMENTATION
 Below is a split of tasks which will help design a basic RISCV Core.  
-
-**1. Program Counter Implementation 
-
+```diff
++     1. Program Counter Implementation     + 
+```
 The program counter (PC), commonly called the instruction pointer (IP) is a counter in a processor that indicates where a computer is in its program. PC jumps 4bytes at a time as each instruction is 32bits in RV32.  
 
-/home/abhierao/Documents/RISCV_CPU_PC_Implmentation.png
+![RISCV_CPU_PC_Implmentation](https://user-images.githubusercontent.com/14968674/92879167-6cd62a00-f42a-11ea-8628-0f62f12a5003.png)
 
-**2. Instruction Fetch
-
+```diff
++     2. Instruction Fetch      +
+```
 The instruction fetch unit (IFU) in a central processing unit (CPU) is responsible for organising program instructions to be fetched from memory, and executed, in an appropriate order. This makes the control logic of the core. 
 
-file:///home/abhierao/Documents/CPU_Instruction_cycle_diagram.png
+![CPU_Instruction_cycle_diagram](https://user-images.githubusercontent.com/14968674/92879147-6942a300-f42a-11ea-8e62-355b95c9955a.png)
 
-
-**3. Instruction Decode
-
+```diff
++     3. Instruction Decode     +
+```
 The decoding stage allows the CPU to determine what instruction is to be performed so that the CPU can tell how many operands it needs to fetch in order to perform the instruction. The opcode fetched from the memory is decoded for the next steps and moved to the appropriate registers. Below image shows hoe decode is determining the TYPE OF RISC V instructions set (Various types of Instructions in RV32 are I, R, S, J, U) 
 
-file:///home/abhierao/Documents/Screenshot%20from%202020-08-30%2003-52-41.png
+![Screenshot from 2020-08-30 03-52-41](https://user-images.githubusercontent.com/14968674/92879174-6f388400-f42a-11ea-9c5d-1ea893de88ba.png)
 
-Waveform focussed on BLT (Branch if less than) Toggle. 
+Waveform showcasing BLT signal (Branch if less than) Toggle on Branch Instruction decode. 
 
-file:///home/abhierao/Documents/Instruction_Decode_Waveform.png
+![Instruction_Decode_Waveform](https://user-images.githubusercontent.com/14968674/92879155-69db3980-f42a-11ea-9457-c2254b092e05.png)
 
-**4. ALU and Register Write of output
-
+```diff
++     4. ALU and Register Write of output     +
+```
 An arithmetic-logic unit (ALU) is the part of the CPU that carries out arithmetic and logic operations. Below image shows an ADDI (ADD Immediate) instruction computation.
 A unique feature of makerchip yet to be released to public is VIZ (Visualization), it helps analyze the implementation visually thereby developers can understand how instructions are executed and which registers is at play during transactions and the final register output. 
 
-file:///home/abhierao/Documents/ADD_register_write.png
+![ADD_register_write](https://user-images.githubusercontent.com/14968674/92874117-5b3e5380-f425-11ea-9c86-b9bac0d465f1.png)
 
-
-**5. Single Stage RISC V Core 
-
+```diff
++     5. Single Stage RISC V Core       + 
+```
 A single stage implmentation of the above modules put together looks like below. 
 
-file:///home/abhierao/Documents/RISCV_CORE_SINGLE_STAGE.png
+![RISCV_CORE_SINGLE_STAGE](https://user-images.githubusercontent.com/14968674/92879159-6b0c6680-f42a-11ea-834a-658afd811bbf.png)
 
-
-**6. RISC V 3 Stage Pipelined Core
-
+```diff
++     6. RISC V 3 Stage Pipelined Core        +
+```
 The above single stage Core was enhanced to be staged across 3 stages in a pipeline, Final output where the core is computing Sum of 9 numbers. The code for the same is available [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/risc-v_solutions.tlv).
 
-file:///home/abhierao/Documents/RISCV/Day5_Snips/RISCV_CPU_CORE.png
+![RISCV_CPU_CORE](https://user-images.githubusercontent.com/14968674/92879163-6c3d9380-f42a-11ea-9f67-ef71d37147f5.png)
 
 # Acknowledgements 
 
