@@ -138,34 +138,89 @@ Features of TL-Verilog making it unique -
 Makerchip is a free online environment by Redwood EDA for developing high-quality integrated circuits. The online platform can be used to code, compile, simulate and debug Verilog designs all in just one tool. Access and learn from [here](http://makerchip.com/)
 
 #### DIGITAL DESIGN 
-**1. GATES (AND , OR , NOT etc) 
+Below are a set of images from Makerchip showcasing the TL-V code and Simulation Output. Most of the basic circuits examples can be found in Makerchip Tutorials an exhaustive list to get anyone enough information to learn the platform and TL-Verilog. 
+
+**1. GATES and MUX (AND , OR , NOT etc) 
+
+/home/abhierao/Documents/RISCV/DAY3_Snips/Gates_mux.png
 
 **2. Multiply Operator Implementation and what is the magic behind TL-Verilog
 
-**3. Pythagorean Theorem Implementation - Single Stage
+What is so special about TL-V is its integration with SandPiper. SandPiper is a code generator which converts code written in TL_Verilog code to a well-structured SystemVerilog code. More about Sandpiper [here](https://www.redwoodeda.com/products).
 
-**4. Ease of PIPELINING in TL-V Pythagorean Theorem Implementation - 3 Stage Pipelined
+/home/abhierao/Documents/RISCV/DAY3_Snips/code_comparison_multiply.png
 
-**5. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity 
+**3. Ease of PIPELINING in TL-V Pythagorean Theorem Implementation - Single Stage v/s 3 Stage Pipeline
+
+Single Stage
+/home/abhierao/Documents/RISCV/DAY3_Snips/Pythagorean_single_stage.png
+
+3 Stage Pipeline - Just an @ and voila the design is split into different stages, An exercise would be to check the amount of code saved by TL Verilog it would be astonishing improvement. Simpler the code lesser the bugs is the mantra. 
+
+/home/abhierao/Documents/RISCV/DAY3_Snips/Pythagorean_3_stage.png
+
+
+**4. Power of Validity in TL-V - 2 Cycle Sequential Calculator with Validity 
+
+Validity in code is an important feature as it acts as Guardian of a piece of module to be executed when a particular condition gets hit, this makes the code easier to debug, cleaner implmentation of the code and helps in Automatic Clock Gating. @Valid construct in TL-V helps achieve. The code for this implementation is present [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/calculator_solutions.tlv)
+
+file:///home/abhierao/Documents/RISCV/DAY3_Snips/2_Cycle_Calculator_with_validity.png
+
+file:///home/abhierao/Documents/RISCV/DAY3_Snips/2_cycle_calculator_validity_diagram.png
+
 
 
 # Day4 & 5 - RISC V CORE IMPLMENTATION
+Below is a split of tasks which will help design a basic RISCV Core.  
+
 **1. Program Counter Implementation 
+
+The program counter (PC), commonly called the instruction pointer (IP) is a counter in a processor that indicates where a computer is in its program. PC jumps 4bytes at a time as each instruction is 32bits in RV32.  
+
+/home/abhierao/Documents/RISCV_CPU_PC_Implmentation.png
 
 **2. Instruction Fetch
 
+The instruction fetch unit (IFU) in a central processing unit (CPU) is responsible for organising program instructions to be fetched from memory, and executed, in an appropriate order. This makes the control logic of the core. 
+
+file:///home/abhierao/Documents/CPU_Instruction_cycle_diagram.png
+
+
 **3. Instruction Decode
 
-**4. ALU 
+The decoding stage allows the CPU to determine what instruction is to be performed so that the CPU can tell how many operands it needs to fetch in order to perform the instruction. The opcode fetched from the memory is decoded for the next steps and moved to the appropriate registers. Below image shows hoe decode is determining the TYPE OF RISC V instructions set (Various types of Instructions in RV32 are I, R, S, J, U) 
+
+file:///home/abhierao/Documents/Screenshot%20from%202020-08-30%2003-52-41.png
+
+Waveform focussed on BLT (Branch if less than) Toggle. 
+
+file:///home/abhierao/Documents/Instruction_Decode_Waveform.png
+
+**4. ALU and Register Write of output
+
+An arithmetic-logic unit (ALU) is the part of the CPU that carries out arithmetic and logic operations. Below image shows an ADDI (ADD Immediate) instruction computation.
+A unique feature of makerchip yet to be released to public is VIZ (Visualization), it helps analyze the implementation visually thereby developers can understand how instructions are executed and which registers is at play during transactions and the final register output. 
+
+file:///home/abhierao/Documents/ADD_register_write.png
+
 
 **5. Single Stage RISC V Core 
 
-**6. Integrating Memory
+A single stage implmentation of the above modules put together looks like below. 
 
-**7. RISC V 3 Stage Pipelined Core
+file:///home/abhierao/Documents/RISCV_CORE_SINGLE_STAGE.png
 
+
+**6. RISC V 3 Stage Pipelined Core
+
+The above single stage Core was enhanced to be staged across 3 stages in a pipeline, Final output where the core is computing Sum of 9 numbers. The code for the same is available [here](https://github.com/RISCV-MYTH-WORKSHOP/risc-v-myth-workshop-august-abhierao/blob/master/Day3_5/risc-v_solutions.tlv).
+
+file:///home/abhierao/Documents/RISCV/Day5_Snips/RISCV_CPU_CORE.png
 
 # Acknowledgements 
+
+All this wouldn't have been possible without a great set of mentors guiding throughout the workshop, few notable mentions below 
+
   - [Kunal Ghosh](https://www.linkedin.com/in/kunal-ghosh-vlsisystemdesign-com-28084836/) (Founder VSD)
   - [Steve Hoover](https://www.linkedin.com/in/steve-hoover-a44b607/) (Founder Redwood EDA)
   - [Shivam Potdar](https://www.linkedin.com/in/shivampotdar99/) 
